@@ -21,8 +21,8 @@ function startGame() {
     menu.style.display = "none";
     console.log('Menu has been hidden');
     //Background Music
-    bg_music = new sound("bg_music.mp3");
-    collision_sound = new sound("collision.mp3")
+    bg_music = new sound("Sounds/bg_music.mp3");
+    collision_sound = new sound("Sounds/collision.mp3")
     bg_music.play();
     console.log('Background music is playing');
     //Sprite creation
