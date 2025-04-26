@@ -1,12 +1,7 @@
-//Declaring Global Variables    
-/*
-TO DO LIST
-DUCKIN AND PTERYDACTYLS
-MORE CACTI
-*/
 var canvas_height, canvas_width;
 var obstacles = [];
 var cacti = [];
+var cacti_spawn = 1;
 var cacti_hitbox = {top: 3, bottom: 1, left: 1, right: 1};
 var trex_hitbox = {top: 0, bottom: 0, left: 1, right: 2};
 var Trex_walk1_img, Trex_walk2_img, Trex_dead_img, Trex_img;
@@ -26,7 +21,6 @@ function startGame() {
     bg_music.play();
     console.log('Background music is playing');
     //Sprite creation
-    GameArea.start();
     Trex_img = document.getElementById("t-rex");
     Trex_walk1_img = document.getElementById("t-rex-walk1");
     Trex_walk2_img = document.getElementById("t-rex-walk2");
@@ -35,8 +29,10 @@ function startGame() {
     let B_cactus2_img = document.getElementById("big-cactus-2");
     let B_cactus3_img = document.getElementById("big-cactus-3");
     let B_cactus4_img = document.getElementById("big-cactus-4");
+    let Cacti_huddle_img = document.getElementById("cacti-huddle");
     console.log('Images have been loaded')
-    cacti = [B_cactus1_img, B_cactus2_img, B_cactus3_img, B_cactus4_img]
+    cacti = [B_cactus1_img, B_cactus2_img, B_cactus3_img, B_cactus4_img, Cacti_huddle_img]
+    GameArea.start();
     Trex_sprite = new img(100, 100, Trex_img, 50, GameArea.canvas.height - 100, trex_hitbox)
     Score = new text("20px", "Helvetica", "black", c_width(0.85), c_height(0.05))
     console.log('Game has been started')
@@ -55,9 +51,9 @@ var GameArea = {
     window.addEventListener('keydown', function (e) {
         if (e.code === "Space" || e.code === "ArrowUp") {
             if (Trex_sprite.onGround()) {
-                Trex_sprite.speedY = -7; // Jump strength
+                Trex_sprite.speedY = Math.min(-7 + GameArea.frameNo / 1000, -6.1);
             }
-            e.preventDefault(); // Prevent scrolling
+            e.preventDefault();
         }
     })
   },
@@ -180,7 +176,10 @@ function updateGameArea() {
     }
     Trex_sprite.update();
     //Cactus Spawning
-    if (GameArea.frameNo == 1 || isinterval(180)){
+    if (GameArea.frameNo == cacti_spawn){
+        //Change cacti spawn
+        cacti_spawn += Math.floor(Math.random() * 40) + 140
+        //Spawn Obstacles
         obstacles.push(new img(50, 100, cacti[Math.floor(Math.random() * cacti.length)], canvas_width - (Math.floor(Math.random() * 150) + 125), canvas_height - 100, cacti_hitbox))
         console.log('Cacti '+ obstacles.length + ' has been spawned at ' + 
             obstacles[obstacles.length - 1].x + ' with image ' + 
@@ -191,10 +190,17 @@ function updateGameArea() {
             obstacles[obstacles.length - 1].bottom = 0;
             obstacles[obstacles.length - 1].top = 1;
         }
+        //Cacti huddle
+        if (obstacles[obstacles.length - 1].image === cacti[4]){
+            obstacles[obstacles.length - 1].width = 100;
+            obstacles[obstacles.length - 1].top = 1;
+            obstacles[obstacles.length - 1].left = 0;
+            obstacles[obstacles.length - 1].bottom = 2;
+        }
     } 
     //Cactus Moving
     for (let i = 0; i < obstacles.length; i++){
-        obstacles[i].x -= 5;
+        obstacles[i].x -= Math.min(5 * ((GameArea.frameNo/1000) + 1), 12.5);
         obstacles[i].update();
     }
     //Score Update
